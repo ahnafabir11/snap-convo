@@ -2,20 +2,46 @@
 
 import { SignUpFormType, signUpFormSchema } from '@/types/form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import axios, { AxiosError } from 'axios'
 import Link from 'next/link'
 import { SubmitHandler, useForm } from 'react-hook-form'
+import toast, { Toaster } from 'react-hot-toast'
 
 export default function SignUpForm() {
   const {
+    reset,
     register,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm<SignUpFormType>({
     resolver: zodResolver(signUpFormSchema),
   })
 
-  const onSubmit: SubmitHandler<SignUpFormType> = (data) => {
-    console.log(data)
+  const onSubmit: SubmitHandler<SignUpFormType> = async (data) => {
+    try {
+      await axios.post('/api/auth/signup', data)
+      toast.success('Check you mail to verify.')
+      reset()
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        const statusText = e.response?.statusText
+        const errorData = e.response?.data
+
+        if (statusText === 'VALIDATION_ERROR') {
+          const validationErrors = errorData.errors
+          Object.keys(validationErrors).map((errorKey) => {
+            validationErrors[errorKey].map((message: string) =>
+              setError(errorKey as keyof SignUpFormType, { message })
+            )
+          })
+        } else {
+          setError('root', { message: 'Internal Server Error!' })
+        }
+      } else {
+        setError('root', { message: 'Internal Server Error!' })
+      }
+    }
   }
 
   return (
@@ -102,6 +128,10 @@ export default function SignUpForm() {
             <p className="text-red-500">{errors.confirmPassword.message}</p>
           )}
         </div>
+
+        {errors.root && (
+          <p className="text-center text-red-500">{errors.root.message}</p>
+        )}
       </div>
 
       <div>
@@ -112,6 +142,8 @@ export default function SignUpForm() {
           Register
         </button>
       </div>
+
+      <Toaster />
     </form>
   )
 }

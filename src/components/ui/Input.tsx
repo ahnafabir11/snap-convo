@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/utils/style'
-import clsx from 'clsx'
 import { forwardRef } from 'react'
 
 export interface InputProps

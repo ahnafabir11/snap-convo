@@ -4,6 +4,7 @@ import { LoginFormType, loginFormSchema } from '@/types/form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { SubmitHandler, useForm } from 'react-hook-form'
+import toast, { Toaster } from 'react-hot-toast'
 
 export default function LoginForm() {
   const {
@@ -14,8 +15,13 @@ export default function LoginForm() {
     resolver: zodResolver(loginFormSchema),
   })
 
-  const onSubmit: SubmitHandler<LoginFormType> = (data) => {
-    console.log(data)
+  const onSubmit: SubmitHandler<LoginFormType> = async (data) => {
+    try {
+      console.log(data)
+      toast.success('Login successful!')
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   return (
@@ -33,7 +39,7 @@ export default function LoginForm() {
           .
         </p>
       </div>
-                 
+
       <div className="space-y-3">
         {/* EMAIL */}
         <div>
@@ -73,11 +79,12 @@ export default function LoginForm() {
       <div>
         <button
           type="submit"
-          className="bg-blue-500 text-white w-full p-2 rounded"
+          className="bg-blue-500 text-white w-full p-3 rounded"
         >
           Login
         </button>
       </div>
+      <Toaster />
     </form>
   )
 }
