@@ -2,13 +2,16 @@
 
 import { LoginFormType, loginFormSchema } from '@/types/form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import axios, { AxiosError } from 'axios'
 import Link from 'next/link'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function LoginForm() {
   const {
+    reset,
     register,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormType>({
@@ -17,10 +20,25 @@ export default function LoginForm() {
 
   const onSubmit: SubmitHandler<LoginFormType> = async (data) => {
     try {
-      console.log(data)
-      toast.success('Login successful!')
-    } catch (e) {
-      console.log(e)
+      await axios.post('/api/auth/login', data)
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        const statusText = e.response?.statusText
+        const errorData = e.response?.data
+
+        if (statusText === 'VALIDATION_ERROR') {
+          const validationErrors = errorData.errors
+          Object.keys(validationErrors).map((errorKey) => {
+            validationErrors[errorKey].map((message: string) =>
+              setError(errorKey as keyof LoginFormType, { message })
+            )
+          })
+        } else {
+          setError('root', { message: 'Internal Server Error!' })
+        }
+      } else {
+        toast.error('Something went wrong!')
+      }
     }
   }
 
@@ -73,6 +91,9 @@ export default function LoginForm() {
         </div>
         {errors.password && (
           <p className="text-red-500">{errors.password.message}</p>
+        )}
+        {errors.root && (
+          <p className="text-red-500 text-center">{errors.root.message}</p>
         )}
       </div>
 

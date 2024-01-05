@@ -39,7 +39,7 @@ export default function SignUpForm() {
           setError('root', { message: 'Internal Server Error!' })
         }
       } else {
-        setError('root', { message: 'Internal Server Error!' })
+        toast.error('Something went wrong!')
       }
     }
   }

@@ -12,7 +12,7 @@ export const compareHash = async (value: string, hashedValue: string) => {
   return await bcrypt.compare(value, hashedValue)
 }
 
-export const generateToken = async (
+export const generateToken = (
   value: string | object | Buffer,
   options?: jwt.SignOptions
 ) => {

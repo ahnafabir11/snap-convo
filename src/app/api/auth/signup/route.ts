@@ -6,7 +6,6 @@ import {
 } from '@/utils/helper'
 import { PrismaClient } from '@prisma/client'
 import { NextRequest } from 'next/server'
-import { Resend } from 'resend'
 
 const prisma = new PrismaClient()
 
